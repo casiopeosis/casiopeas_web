@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Pong Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@100;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            /* MODIFIED: Applied Cormorant Garamond globally */
+            font-family: 'Cormorant Garamond', serif;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            text-align: center;
+            position: relative;
+        }
+
+        canvas {
+            border: 1px solid #fff;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #score {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        #message {
+            font-size: 24px;
+            margin-top: 20px;
+            min-height: 30px;
+        }
+
+        #backBtn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            /* Cormorant Garamond will now apply here */
+            font-weight: 700; 
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        #backBtn:hover {
+            opacity: 0.7;
+        }
+
+        #deathScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        #deathScreen.show {
+            display: flex;
+        }
+
+        #deathText {
+            font-size: 120px;
+            font-weight: 700;
+            color: #8B0000;
+            text-shadow: 0 0 20px #8B0000;
+            animation: fadeIn 1s ease-in;
+            /* REMOVED: Font family is now set on the body */
+        }
+
+        #retryText {
+            font-size: 32px;
+            /* Cormorant Garamond will now apply here */
+            font-weight: 400;
+            color: #fff;
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeIn 1s ease-in 1.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .blink-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .blink-overlay.active {
+            animation: blink 0.3s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="score">Score: 0</div>
+        <canvas id="pongCanvas" width="600" height="800"></canvas>
+        <div id="message">Move paddle with mouse. Score 21 to win!</div>
+        <button id="backBtn" onclick="window.location.href='index.html'">Back to Portfolio</button>
+    </div>
+
+    <div id="deathScreen">
+        <div id="deathText">YOU DIED</div>
+        <div id="retryText">Click anywhere to try again</div>
+    </div>
+
+    <div class="blink-overlay"></div>
+
+    <script>
+                // Add these constants near the top of the script
+        const BASE_SPEED = 10;
+        const SPEED_MULTIPLIER = 0.5; // Adjust this value to control how fast speed increases
+        const canvas = document.getElementById('pongCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const messageDisplay = document.getElementById('message');
+        const deathScreen = document.getElementById('deathScreen');
+        const blinkOverlay = document.querySelector('.blink-overlay');
+
+        // Game objects - VERTICAL orientation
+        const paddle = {
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 35,
+            width: 100,
+            height: 15,
+            dx: 0
+        };
+
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 8,
+            // Use BASE_SPEED instead of hardcoded 4
+            dx: BASE_SPEED, 
+            dy: -BASE_SPEED 
+        };
+
+        const aiPaddle = {
+            x: canvas.width / 2 - 50,
+            y: 20,
+            width: 100,
+            height: 15,
+            dx: 3
+        };
+
+        let score = 0;
+        let gameWon = false;
+        let gameActive = true;
+
+        // Mouse control - horizontal movement
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+            const rect = canvas.getBoundingClientRect();
+            paddle.x = e.clientX - rect.left - paddle.width / 2;
+            
+            // Keep paddle in bounds
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.width > canvas.width) {
+                paddle.x = canvas.width - paddle.width;
+            }
+        });
+
+        // Death screen click to restart
+        deathScreen.addEventListener('click', () => {
+            deathScreen.classList.remove('show');
+            resetGame();
+        });
+
+        // Draw functions
+        function drawRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, w, h);
+        }
+
+        function drawBall(x, y, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawNet() {
+            for (let i = 0; i < canvas.width; i += 20) {
+                drawRect(i, canvas.height / 2 - 1, 10, 2, '#fff');
+            }
+        }
+
+        // Game logic
+        function moveAI() {
+            if (!gameActive || gameWon) return;
+            
+            const paddleCenter = aiPaddle.x + aiPaddle.width / 2;
+            if (paddleCenter < ball.x - 35) {
+                aiPaddle.x += aiPaddle.dx;
+            } else if (paddleCenter > ball.x + 35) {
+                aiPaddle.x -= aiPaddle.dx;
+            }
+
+            // Keep AI paddle in bounds
+            if (aiPaddle.x < 0) aiPaddle.x = 0;
+            if (aiPaddle.x + aiPaddle.width > canvas.width) {
+                aiPaddle.x = canvas.width - aiPaddle.width;
+            }
+        }
+
+        function collision(ball, paddle) {
+            return ball.y - ball.radius < paddle.y + paddle.height &&
+                   ball.y + ball.radius > paddle.y &&
+                   ball.x + ball.radius > paddle.x &&
+                   ball.x - ball.radius < paddle.x + paddle.width;
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreDisplay.textContent = 'Score: 0';
+            gameActive = true;
+            gameWon = false;
+            messageDisplay.textContent = 'Move paddle with mouse. Score 5 to win!';
+            resetBall();
+        }
+
+        function showDeathScreen() {
+            gameActive = false;
+            deathScreen.classList.add('show');
+        }
+
+        function triggerWinSequence() {
+            gameWon = true;
+            gameActive = false;
+            messageDisplay.textContent = '🎉 You win! Redirecting...';
+            
+            // Start blinking effect
+            blinkOverlay.classList.add('active');
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'https://www.instagram.com/yourusername/';
+            }, 2000);
+        }
+
+        function update() {
+            if (!gameActive || gameWon) return;
+
+            // Move ball
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Wall collision (left and right)
+            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+                ball.dx *= -1;
+            }
+
+            // Paddle collision
+            const playerCollision = collision(ball, paddle);
+            const aiCollision = collision(ball, aiPaddle);
+
+            if (playerCollision || aiCollision) {
+                ball.dy *= -1;
+                
+                // Add some angle variation based on where ball hits paddle
+                const paddle_ = playerCollision ? paddle : aiPaddle;
+                const collisionPoint = ball.x - (paddle_.x + paddle_.width / 2);
+                ball.dx = collisionPoint * 0.1;
+            }
+
+            // Score points / Game over
+            if (ball.y - ball.radius < 0) {
+                // Player scores (hit top AI paddle area)
+                score++;
+                scoreDisplay.textContent = 'Score: ' + score;
+                resetBall();
+
+                if (score >= 21) {
+                    triggerWinSequence();
+                }
+            } else if (ball.y + ball.radius > canvas.height) {
+                // AI scores - YOU DIED (ball went past bottom)
+                showDeathScreen();
+            }
+
+            moveAI();
+        }
+
+        function resetBall() {
+            // Calculate the new speed magnitude based on score
+            const newSpeed = BASE_SPEED + (score * SPEED_MULTIPLIER);
+
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+
+            // Apply the new speed magnitude to dx and dy
+            // dx is randomized horizontal speed (max magnitude of newSpeed)
+            ball.dx = (Math.random() * 2 - 1) * newSpeed;
+
+            // dy is randomized vertical speed, magnitude newSpeed (up or down)
+            // Note: The original code starts with dy = -4 (moving up), so we maintain that direction control.
+            ball.dy = (Math.random() > 0.5 ? 1 : -1) * newSpeed;
+        }
+
+        function render() {
+            // Clear canvas
+            drawRect(0, 0, canvas.width, canvas.height, '#000');
+
+            // Draw net
+            drawNet();
+
+            // Draw paddles
+            drawRect(paddle.x, paddle.y, paddle.width, paddle.height, '#fff');
+            drawRect(aiPaddle.x, aiPaddle.y, aiPaddle.width, aiPaddle.height, '#fff');
+
+            // Draw ball
+            drawBall(ball.x, ball.y, ball.radius, '#fff');
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        gameLoop();
+    </script>
+</body>
+</html>

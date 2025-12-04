@@ -1,0 +1,237 @@
+/* ============================================
+   ABOUT.HTML & PROJECTS.HTML STYLES
+   Link this file in both about.html and projects.html
+   ============================================ */
+
+@font-face {
+    font-family: 'Helvetica Neue';
+    src: local('Helvetica Neue'), local('HelveticaNeue')
+    ,local('Helvetica Neue Condensed Heavy');
+    font-weight: 900;
+    font-stretch: condensed;
+}
+
+/* New font-face for the back buttons */
+@font-face {
+    font-family: 'Helvetica Neue Condensed Heavy';
+    /* You would need to link to the actual font files here, e.g., 
+       src: url('path/to/HelveticaNeueHeavyCondensed.woff2') format('woff2'); */
+    src: local('Helvetica Neue Condensed Heavy'), local('HelveticaNeueCondensedHeavy'); /* Fallback for local install */
+    font-weight: 900;
+    font-stretch: condensed; /* Condensed Heavy is often a heavy weight */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ============ ABOUT PAGE ============ */
+.about-container {
+    background-color: #000000;
+    color: #ffffff;
+    min-height: 100vh;
+    width: 100%;
+    padding: 8vh 8vw;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInContent 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes fadeInContent {
+    to { opacity: 1; }
+}
+
+/* Back link changes for ABOUT page */
+.about-container .back-link {
+    color: #ffffff;
+    font-size: 0.83vw;
+    font-family: 'Helvetica Neue Heavy Condensed', Helvetica, Arial, sans-serif; /* Changed font */
+    text-transform: uppercase;
+    letter-spacing: 0em;
+    /* border: 1px solid #ffffff;  <-- Removed border */
+    padding: 0; /* Changed padding to remove box appearance */
+    margin-bottom: 4vh;
+    transition: all 0.2s;
+    font-weight: 900; /* Set to the heavy weight */
+    display: inline-block; /* Helps with hover/padding if you add it back */
+    text-decoration: none; /* Ensure it's not underlined if it's an <a> tag */
+}
+
+.about-container .back-link:hover {
+    /* The original hover effect was for the bordered box, let's keep it simple for text */
+    background-color: transparent; 
+    color: #ffffff;
+    opacity: 0.7; /* Added slight opacity change for hover effect */
+}
+
+.cv-section {
+    margin-bottom: 2.5vh;
+}
+
+.cv-section h1 {
+    font-size: 1.5vw;
+    margin-bottom: 1vh;
+    font-weight: 900;
+    letter-spacing: 0em;
+}
+
+.cv-section h2 {
+    font-size: 1vw;
+    margin-bottom: 0vh;
+    margin-top: 0vh;
+    font-weight: 400;
+    letter-spacing: 0em;
+}
+
+.cv-section p {
+    font-size: 0.94vw;
+    line-height: 2vh;
+    font-weight: 200;
+    letter-spacing: 0.01em;
+}
+
+.cv-section ul {
+    list-style: none;
+    padding: 0;
+    font-size: 0.94vw;
+    line-height: 1.;
+    font-weight: 300;
+}
+
+.cv-section li {
+    margin-bottom: 10px;
+    padding-left: 1px;
+    position: relative;
+}
+
+.cv-section li:before {
+    content: "—";
+    position: absolute;
+    left: 0;
+}
+
+.cv-section strong {
+    font-weight: 500;
+}
+
+/* ============ PROJECTS PAGE ============ */
+.projects-container {
+    background-color: #ffffff;
+    color: #000000;
+    min-height: 100vh;
+    width: 100%;
+    padding: 6vh 8vw;
+    overflow-y: auto;
+    opacity: 0;
+    animation: fadeInContent 0.8s ease-out 0.3s forwards;
+}
+
+/* Back link changes for PROJECTS page */
+.projects-container .back-link {
+    color: #000000;
+    font-size: 0.83vw;
+    font-family: 'Helvetica Neue Heavy Condensed', Helvetica, Arial, sans-serif; /* Changed font */
+    text-transform: uppercase;
+    letter-spacing: 0em;
+    /* border: 1px solid #000000; <-- Removed border */
+    padding: 0; /* Changed padding to remove box appearance */
+    margin-bottom: 4vh;
+    transition: all 0.2s;
+    font-weight: 900; /* Set to the heavy weight */
+    display: inline-block;
+    text-decoration: none;
+}
+
+.projects-container .back-link:hover {
+    /* The original hover effect was for the bordered box, let's keep it simple for text */
+    background-color: transparent;
+    color: #000000;
+    opacity: 0.7; /* Added slight opacity change for hover effect */
+}
+
+.projects-header {
+    margin-bottom: 5vh;
+    border-bottom: 1px solid #000000;
+    padding-bottom: 2vh;
+}
+
+.projects-header h1 {
+    font-size: 2.5vw;
+    margin-bottom: 2vh;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+}
+
+.github-link {
+    font-size: 0.94vw;
+    color: #000000;
+    text-decoration: none;
+    transition: opacity 0.3s;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+.github-link:hover {
+    opacity: 0.6;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3vw;
+    margin-top: 5vh;
+}
+
+.project-card {
+    border: 1px solid #000;
+    padding: 0;
+    transition: transform 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: #000;
+    display: block;
+    aspect-ratio: 16 / 10;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+}
+
+.project-image {
+    width: 100%;
+    height: 60%;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.73vw;
+    color: #999;
+    font-weight: 300;
+}
+
+.project-content {
+    padding: 1.5vw;
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card h3 {
+    font-size: 1.15vw;
+    margin-bottom: 1vh;
+    font-weight: 400;
+}
+
+.project-card p {
+    font-size: 0.73vw;
+    font-weight: 300;
+    line-height: 1.6;
+}

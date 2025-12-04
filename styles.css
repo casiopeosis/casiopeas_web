@@ -1,0 +1,356 @@
+@font-face {
+    font-family: 'Helvetica Neue';
+    src: local('Helvetica Neue Condensed Bold'),
+         local('HelveticaNeue-CondensedBold');
+    font-weight: 700;
+    font-stretch: condensed;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue Condensed Bold', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+    font-weight: 700;
+    font-stretch: condensed;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* MAIN PAGE - HORIZONTAL SPLIT */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Black Section - Top */
+.black-section {
+    background-color: #000000;
+    color: #ffffff;
+    height: 64.81vh; /* 700/1080 */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 7.81vw; /* 150px from top */
+    position: relative;
+}
+
+.text-line {
+    font-size: 1.67vw; /* 32/1920 */
+    line-height: 1.3;
+    margin-bottom: 0.26vh; /* 5/1920 adjusted */
+}
+
+.email-link {
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.email-link:hover {
+    opacity: 0.7;
+}
+
+.email-block {
+    position: absolute;
+    bottom: 5.21vw; /* ~100px from white section */
+}
+
+/* Updated Casiopea 3D Carousel Text Style */
+.casiopea-3d-text {
+    /* Absolute position for the target coordinates (1250, 300 on 1920x1080) */
+    position: absolute;
+    top: 27.78vh; /* 300px / 1080px */
+    left: 70.10vw; /* 1250px / 1920px */
+    
+    /* Using Helvetica for consistency */
+    font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 3.5vw;
+    color: #ffffff;
+    line-height: 1;
+
+    /* Center the container for the ring */
+    width: 0;
+    height: 0;
+    
+    /* Variable for mouse-controlled rotation angle */
+    --rotation-angle: 0deg; 
+
+    /* Enable 3D transformations */
+    transform-style: preserve-3d;
+    perspective: 1200px;
+    
+    /* Tilt forward 25deg and incline right 15deg, then spin with mouse */
+    transform: rotateX(-15deg) rotateZ(15deg) rotateY(var(--rotation-angle)); 
+    
+    /* Optimize for smooth animation */
+    will-change: transform;
+}
+
+.casiopea-3d-text span {
+    position: absolute;
+    /* Defines the radius of the ring */
+    --radius: 130px; 
+    
+    /* Calculate placement angle for each letter */
+    --placement-angle: calc(var(--i) * (360deg / 8)); 
+    
+    /* Calculate Z position for proper depth sorting */
+    --z-pos: calc(cos(var(--placement-angle)) * var(--radius));
+    
+    /* Transform creates the ring: 
+       1. Rotate to position around the circle
+       2. Push outward from center
+       3. Rotate back so letter faces viewer (not the center)
+    */
+    transform: 
+        rotateY(var(--placement-angle))
+        translateZ(var(--radius))
+        rotateY(180deg); 
+    
+    display: inline-block;
+    transform-origin: center center;
+    transform-style: preserve-3d;
+    
+    /* This ensures letters closer to viewer render on top */
+    backface-visibility: visible;
+    
+    /* Subtle text shadow for depth */
+    text-shadow: 
+        0.05vw 0.05vw 0.1vw rgba(0,0,0,0.5),
+        0.1vw 0.1vw 0.2vw rgba(0,0,0,0.3);
+}
+
+/* White Section - Bottom */
+.white-section {
+    background-color: #f5f5f5;
+    color: #000000;
+    height: 35.19vh; /* 380/1080 */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6.25vw; /* 120/1920 */
+}
+
+.large-text {
+    font-family: 'Helvetica Neue', 'Arial Black', Arial, sans-serif;
+    font-weight: 900;
+    font-stretch: condensed;
+    font-size: 7.34vw; /* 141/1920 */
+    line-height: 0.7;
+    letter-spacing: -0.3vw;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.large-text:hover {
+    opacity: 0.7;
+}
+
+.large-text-line-1 {
+    padding-left: 7.81vw; /* 150/1920 */
+}
+
+.large-text-line-2 {
+    padding-left: 13.02vw; /* 250/1920 */
+}
+
+.navigation {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.78vh; /* 15/1920 - adjusted for vertical */
+}
+
+.nav-link {
+    font-size: 2.71vw; /* 52/1920 */
+    color: #000000;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.nav-link:nth-child(1) {
+    padding-right: 15.63vw; /* 300/1920 */
+}
+
+.nav-link:nth-child(2) {
+    padding-right: 10.42vw; /* 200/1920 */
+}
+
+.nav-link:nth-child(3) {
+    padding-right: 5.21vw; /* 100/1920 */
+}
+
+.nav-link:hover {
+    opacity: 0.6;
+}
+
+/* ABOUT PAGE - Full Black */
+.about-container {
+    background-color: #000000;
+    color: #ffffff;
+    min-height: 100vh;
+    width: 100%;
+    padding: 4.17vh 20.83vw; /* 80/1920 and 400/1920 */
+    overflow-y: auto;
+}
+
+.back-link {
+    display: inline-block;
+    font-size: 1.25vw; /* 24/1920 */
+    color: #ffffff;
+    text-decoration: none;
+    margin-bottom: 3.13vh; /* 60/1920 adjusted */
+    transition: opacity 0.3s;
+}
+
+.back-link:hover {
+    opacity: 0.6;
+}
+
+.cv-section {
+    text-align: center;
+    margin-bottom: 4.17vh; /* 80/1920 adjusted */
+}
+
+.cv-section h1 {
+    font-size: 3.75vw; /* 72/1920 */
+    margin-bottom: 1.04vh;
+    letter-spacing: -0.1vw;
+}
+
+.cv-section h2 {
+    font-size: 2.5vw; /* 48/1920 */
+    margin-bottom: 1.56vh;
+    margin-top: 3.13vh;
+    letter-spacing: -0.05vw;
+}
+
+.cv-section p, .cv-section ul {
+    font-size: 1.04vw; /* 20/1920 */
+    line-height: 1.8;
+    max-width: 46.88vw; /* 900/1920 */
+    margin: 0 auto;
+    font-weight: 400;
+    text-align: left;
+}
+
+.cv-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.cv-section li {
+    margin-bottom: 15px;
+    padding-left: 30px;
+    position: relative;
+}
+
+.cv-section li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    font-size: 24px;
+}
+
+/* PROJECTS PAGE - Full White */
+.projects-container {
+    background-color: #ffffff;
+    color: #000000;
+    min-height: 100vh;
+    width: 100%;
+    padding: 4.17vh 10.42vw; /* 80/1920 and 200/1920 */
+    overflow-y: auto;
+}
+
+.projects-container .back-link {
+    color: #000000;
+    margin-bottom: 2.08vh;
+}
+
+.projects-header {
+    margin-bottom: 3.13vh;
+}
+
+.projects-header h1 {
+    font-size: 3.75vw; /* 72/1920 */
+    margin-bottom: 1.56vh;
+    letter-spacing: -0.1vw;
+}
+
+.github-link {
+    font-size: 1.67vw; /* 32/1920 */
+    color: #000000;
+    text-decoration: none;
+    border-bottom: 0.21vw solid #000; /* 4/1920 */
+    padding-bottom: 0.26vh;
+    transition: opacity 0.3s;
+}
+
+.github-link:hover {
+    opacity: 0.6;
+}
+
+/* Projects Grid - 3 per row */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.08vw; /* 40/1920 */
+    margin-top: 3.13vh;
+}
+
+.project-card {
+    border: 0.16vw solid #000; /* 3/1920 */
+    padding: 0;
+    transition: transform 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: #000;
+    display: block;
+    aspect-ratio: 16 / 10;
+}
+
+.project-card:hover {
+    transform: translateY(-0.42vh);
+}
+
+/* Image placeholder at top of card */
+.project-image {
+    width: 100%;
+    height: 60%;
+    background-color: #e0e0e0;
+    border-bottom: 0.16vw solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.73vw; /* 14/1920 */
+    color: #666;
+}
+
+.project-content {
+    padding: 1.3vw; /* 25/1920 */
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card h3 {
+    font-size: 1.46vw; /* 28/1920 */
+    margin-bottom: 0.63vh;
+    letter-spacing: -0.03vw;
+}
+
+.project-card p {
+    font-size: 0.83vw; /* 16/1920 */
+    font-weight: 400;
+    line-height: 1.5;
+}

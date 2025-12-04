@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Black Section (Top) -->
+        <div class="black-section">
+            <div class="text-line" style="padding-left: 7.80vw;">
+                i am André, a Mexico City-based applied maths and data
+            </div>
+            <div class="text-line" style="padding-left: 7.82vw;">
+                science major currently on his 3rd year at ITAM
+            </div>
+            
+            <div class="text-line" style="padding-left: 7.86vw; margin-top: 3.43vh;">
+                my interests include quantitative finance, chess,
+            </div>
+            <div class="text-line" style="padding-left: 7.88vw;">
+                time series and dynamic systems
+            </div>
+            <div class="text-line" style="padding-left: 8.07vw;">
+                
+            </div>
+            
+            <div class="email-block" style="padding-left: 8.33vw;">
+                <a href="mailto:csanluis@itam.mx" class="email-link text-line">
+                    email me
+                </a>
+            </div>
+            
+            <!-- CASIOPEA 3D TEXT CONTAINER -->
+            <div class="casiopea-3d-text" style="cursor: pointer;" onclick="window.location.href='music.html'">
+                <span style="--i:1">A</span>
+                <span style="--i:2">E</span>
+                <span style="--i:3">P</span>
+                <span style="--i:4">O</span>
+                <span style="--i:5">I</span>
+                <span style="--i:6">S</span>
+                <span style="--i:7">A</span>
+                <span style="--i:8">C</span>
+            </div>
+        </div>
+
+        <!-- White Section (Bottom) -->
+        <div class="white-section">
+            <div class="large-text easter-egg-trigger">
+                <div class="large-text-line-1">WANT TO</div><div class="large-text-line-2">KNOW MORE?</div>
+            </div>
+            <div class="navigation">
+                <a href="about.html" class="nav-link" data-page="about">about</a>
+                <a href="projects.html" class="nav-link" data-page="projects">projects</a>
+                <a href="#" class="nav-link">connect</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transition overlay -->
+    <div class="transition-overlay"></div>
+
+    <script>
+        // --- 3D Ring Rotation Based on Mouse Speed ---
+        const ring = document.querySelector('.casiopea-3d-text');
+        
+        let currentRotation = 0;
+        let prevMouseX = 0;
+        let prevMouseY = 0;
+        let rotationVelocity = 0;
+        
+        const FRICTION = 0.95;
+        const SPEED_MULTIPLIER = 0.03;
+
+        document.addEventListener('mousemove', (e) => {
+            const deltaX = e.clientX - prevMouseX;
+            const deltaY = e.clientY - prevMouseY;
+            const speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            rotationVelocity += speed * SPEED_MULTIPLIER;
+            prevMouseX = e.clientX;
+            prevMouseY = e.clientY;
+        });
+
+        function animate() {
+            currentRotation += rotationVelocity;
+            rotationVelocity *= FRICTION;
+            ring.style.setProperty('--rotation-angle', `${currentRotation}deg`);
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- Page Transitions ---
+        const overlay = document.querySelector('.transition-overlay');
+
+        document.querySelectorAll('[data-page]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = e.currentTarget.getAttribute('data-page');
+                
+                document.body.classList.add('transitioning');
+                
+                // White for about, black for projects
+                if (page === 'about') {
+                    overlay.style.backgroundColor = '#ffffff';
+                } else if (page === 'projects') {
+                    overlay.style.backgroundColor = '#000000';
+                }
+                
+                overlay.classList.add('expand');
+                
+                setTimeout(() => {
+                    window.location.href = `${page}.html`;
+                }, 800);
+            });
+        });
+
+        // Easter egg: click on "WANT TO KNOW MORE?" text
+        document.querySelector('.easter-egg-trigger').addEventListener('click', () => {
+            window.location.href = 'pong.html';
+        });
+    </script>
+</body>
+</html>

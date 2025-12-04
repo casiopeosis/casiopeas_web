@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Compositions</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .music-container {
+            background-color: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4.17vh 10.42vw;
+            position: relative;
+        }
+
+        .music-back-link {
+            position: absolute;
+            top: 4.17vh;
+            left: 10.42vw;
+            font-size: 1.25vw;
+            color: #ffffff;
+            text-decoration: none;
+            transition: opacity 0.3s;
+            font-family: 'Helvetica Neue Medium', 'Helvetica', Arial, sans-serif;
+            font-weight: 200;
+            font-stretch: normal;
+        }
+
+        .music-back-link:hover {
+            opacity: 0.6;
+        }
+
+        .music-title-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.08vh;
+            margin-bottom: 5.21vh;
+        }
+
+        .song-title {
+            font-size: 2.5vw;
+            cursor: pointer;
+            transition: opacity 0.3s, letter-spacing 0.3s;
+            letter-spacing: -0.05vw;
+            text-align: center;
+            font-family: 'Helvetica Neue Ultra Light', 'Helvetica', Arial, sans-serif;
+            font-weight: 200;
+            font-stretch: normal;
+        }
+
+        .song-title:hover {
+            opacity: 0.7;
+            letter-spacing: 0.1vw;
+        }
+
+        .song-title.active {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        /* Minimalist Play/Pause Button */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 2.08vw;
+            margin-top: 3.13vh;
+        }
+
+        .play-pause-btn {
+            width: 2.08vw;
+            height: 2.08vw;
+            border: 0.16vw solid #000000;
+            background-color: transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border-radius: 50%;
+        }
+
+        .play-pause-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* Play icon (triangle) */
+        .play-pause-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 52%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0.73vw 0 0.73vw 1.25vw;
+            border-color: transparent transparent transparent #ffffff;
+        }
+
+        /* Pause icon (two bars) - hidden by default */
+        .play-pause-btn.playing::before {
+            border: none;
+            width: 0.31vw;
+            height: 1.46vw;
+            background-color: #ffffff;
+            left: 42%;
+            box-shadow: 0.63vw 0 0 #ffffff;
+        }
+
+        .now-playing {
+            font-size: 1.25vw;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 31.25vw;
+            height: 0.21vw;
+            background-color: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #ffffff;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .time-display {
+            font-size: 0.94vw;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="music-container">
+        <a href="index.html" class="music-back-link">← back</a>
+        
+        <div class="music-title-list">
+            <!-- Add your songs here. Each data-src should point to your audio file -->
+            <div class="song-title" data-src="/* path/to/your/song1.mp3 */">Nocturne in E Minor</div>
+            <div class="song-title" data-src="/* path/to/your/song2.mp3 */">Prelude in C Major</div>
+            <div class="song-title" data-src="/* path/to/your/song3.mp3 */">Waltz in A Flat</div>
+            <div class="song-title" data-src="/* path/to/your/song4.mp3 */">Impromptu No. 2</div>
+            <div class="song-title" data-src="/* path/to/your/song5.mp3 */">Etude in G Sharp Minor</div>
+        </div>
+
+        <div class="player-controls">
+            <button class="play-pause-btn" id="playPauseBtn"></button>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+        </div>
+
+        <div class="now-playing" id="nowPlaying">Select a piece to play</div>
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const songTitles = document.querySelectorAll('.song-title');
+
+        let currentSong = null;
+
+        // Song selection
+        songTitles.forEach(title => {
+            title.addEventListener('click', () => {
+                const songSrc = title.getAttribute('data-src');
+                const songName = title.textContent;
+
+                // Remove active class from all
+                songTitles.forEach(t => t.classList.remove('active'));
+                title.classList.add('active');
+
+                // Load and play new song
+                audioPlayer.src = songSrc;
+                audioPlayer.load();
+                audioPlayer.play();
+                playPauseBtn.classList.add('playing');
+                nowPlaying.textContent = `Now playing: ${songName}`;
+                currentSong = songName;
+            });
+        });
+
+        // Play/Pause button
+        playPauseBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.classList.add('playing');
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.classList.remove('playing');
+            }
+        });
+
+        // Update progress bar
+        audioPlayer.addEventListener('timeupdate', () => {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressBar.style.width = progress + '%';
+
+            // Update time display
+            const currentMin = Math.floor(audioPlayer.currentTime / 60);
+            const currentSec = Math.floor(audioPlayer.currentTime % 60).toString().padStart(2, '0');
+            const durationMin = Math.floor(audioPlayer.duration / 60) || 0;
+            const durationSec = Math.floor(audioPlayer.duration % 60).toString().padStart(2, '0') || '00';
+            
+            timeDisplay.textContent = `${currentMin}:${currentSec} / ${durationMin}:${durationSec}`;
+        });
+
+        // Click on progress bar to seek
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const percentage = clickX / width;
+            audioPlayer.currentTime = percentage * audioPlayer.duration;
+        });
+
+        // Auto-play next song when current ends (optional)
+        audioPlayer.addEventListener('ended', () => {
+            playPauseBtn.classList.remove('playing');
+        });
+    </script>
+</body>
+</html>
